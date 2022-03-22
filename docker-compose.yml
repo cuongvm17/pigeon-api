@@ -1,0 +1,68 @@
+version: '3'
+
+services:
+  nginx:
+    container_name: ${APP_NAME}-nginx
+    depends_on:
+      - app
+    image: nginx:alpine
+    tty: true
+    ports:
+      - ${DOCKER_NGINX_EXTERNAL_PORT}:80
+    volumes:
+      - ./:/var/www
+      - ./docker/nginx/conf.d/:/etc/nginx/conf.d/
+    networks:
+      - default
+  app:
+    container_name: ${APP_NAME}-app
+    depends_on:
+      - redis-cluster
+      - mysql
+    build:
+      context: .
+      dockerfile: ./docker/php/Dockerfile
+    environment:
+      PHP_OPCACHE_VALIDATE_TIMESTAMPS: 1
+      CONTAINER_ROLE: app
+    volumes:
+      - ./:/var/www
+      - ./docker/php/php.ini:/usr/local/etc/php/php.ini
+    expose:
+      - '9000'
+    networks:
+      - default
+  mysql:
+    container_name: ${APP_NAME}-db
+    image: mariadb:10.1.24
+    ports:
+      - ${DOCKER_MYSQL_EXTERNAL_PORT}:3306
+    environment:
+      MYSQL_DATABASE: '${DB_DATABASE}'
+      MYSQL_USER: '${DB_USERNAME}'
+      MYSQL_PASSWORD: '${DB_PASSWORD}'
+      MYSQL_ROOT_PASSWORD: '${DB_ROOT_PASSWORD}'
+      MYSQL_ROOT_HOST: '%'
+      TZ: Asia/Ho_Chi_Minh
+    volumes:
+      - pigeon-api-db-data:/var/lib/mysql/
+      - ./docker/mysql/my.cnf:/etc/mysql/my.cnf
+    networks:
+      - default
+  redis-cluster:
+    container_name: ${APP_NAME}-cluster
+    build:
+      context: .
+      dockerfile: ./docker/redis/Dockerfile
+    ports:
+      - '7000-7005:7000-7005'
+    networks:
+      - default
+
+networks:
+  default:
+    driver: bridge
+
+volumes:
+  pigeon-api-db-data:
+    driver: local
