@@ -1,8 +1,8 @@
 ### Pigeon API ###
-Service support UserPigeon.
+- Service support UserPigeon.
+- [Requirements](https://docs.google.com/document/d/1PDaFIIdcrzYc4W8ehGqzUEmFXaOz6X-heFPTIScTSzQ/edit?usp=sharing)
 
-### Requirements
-
+### Stacks
 - PHP 8.0 or newer
 - [Composer](http://getcomposer.org)
 - [Lumen](https://lumen.laravel.com/)
